@@ -34,7 +34,8 @@ enum IVar : uint8_t {
 
 enum RiemannSolver {
   HLL,
-  HLLC
+  HLLC,
+  FSLP,
 };
 
 enum BoundaryType {
@@ -117,6 +118,7 @@ struct Params {
   bool well_balanced_flux_at_y_bc = false;
   bool well_balanced = false;
   std::string problem;
+  real_t fslp_K = 1.1;
 
   // Thermal conduction
   bool thermal_conductivity_active;
@@ -148,6 +150,9 @@ struct Params {
   real_t b02_kappa1;
   real_t b02_kappa2;
   real_t b02_thickness;
+
+  // Gresho vortex
+  real_t gresho_density, gresho_Mach;
 
   // Misc 
   int seed;
@@ -217,7 +222,8 @@ Params readInifile(std::string filename) {
   tmp = reader.Get("solvers", "riemann_solver", "hllc");
   std::map<std::string, RiemannSolver> riemann_map{
     {"hll", HLL},
-    {"hllc", HLLC}
+    {"hllc", HLLC},
+    {"fslp", FSLP}
   };
   res.riemann_solver = riemann_map[tmp];
 
@@ -241,6 +247,7 @@ Params readInifile(std::string filename) {
   res.theta2  = reader.GetFloat("polytrope", "theta2", 10.0);
   res.problem = reader.Get("physics", "problem", "blast");
   res.well_balanced_flux_at_y_bc = reader.GetBoolean("physics", "well_balanced_flux_at_y_bc", false);
+  res.fslp_K  = reader.GetFloat("physics", "fslp_K", 1.1);
 
   // Thermal conductivity
   res.thermal_conductivity_active = reader.GetBoolean("thermal_conduction", "active", false);
@@ -278,6 +285,11 @@ Params readInifile(std::string filename) {
 
   // C91
   res.c91_pert = reader.GetFloat("C91", "perturbation", 1.0e-3);
+
+  // Gresho Vortex
+  res.gresho_density  = reader.GetFloat("gresho_vortex", "density",  1.0);
+  res.gresho_Mach     = reader.GetFloat("gresho_vortex", "Mach",     0.1);
+  //std::cout << "mach = " << res.gresho_Mach << std::endl;
 
   // Misc
   res.seed = reader.GetInteger("misc", "seed", 12345);
