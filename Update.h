@@ -48,7 +48,6 @@ public:
     };
   ~UpdateFunctor() = default;
 
-  KOKKOS_INLINE_FUNCTION
   void computeSlopes(const Array &Q) const {
     auto slopesX = this->slopesX;
     auto slopesY = this->slopesY;
@@ -148,7 +147,7 @@ public:
     // First filling up boundaries for ghosts terms
     bc_manager.fillBoundaries(Q);
 
-    // Hypperbolic udpate
+    // Hyperbolic udpate
     if (params.reconstruction == PLM)
       computeSlopes(Q);
     computeFluxesAndUpdate(Q, Unew, dt);
