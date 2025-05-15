@@ -40,7 +40,8 @@ enum RiemannSolver {
 enum BoundaryType {
   BC_ABSORBING,
   BC_REFLECTING,
-  BC_PERIODIC
+  BC_PERIODIC,
+  BC_HSE
 };
 
 enum TimeStepping {
@@ -117,6 +118,7 @@ struct Params {
   bool well_balanced_flux_at_y_bc = false;
   bool well_balanced = false;
   std::string problem;
+  std::string init_filename; // for profiles and such
 
   // Thermal conduction
   bool thermal_conductivity_active;
@@ -206,11 +208,13 @@ Params readInifile(std::string filename) {
     
   res.save_freq = reader.GetFloat("run", "save_freq", 1.0e-1);
   res.filename_out = reader.Get("run", "output_filename", "run");
+  res.init_filename = reader.Get("run", "init_filename", "profile.dat");
 
   std::map<std::string, BoundaryType> bc_map{
     {"reflecting",         BC_REFLECTING},
     {"absorbing",          BC_ABSORBING},
-    {"periodic",           BC_PERIODIC}
+    {"periodic",           BC_PERIODIC},
+    {"hse",                BC_HSE}
   };
   res.boundary_x = read_map(bc_map, "run", "boundaries_x", "reflecting");
   res.boundary_y = read_map(bc_map, "run", "boundaries_y", "reflecting");
